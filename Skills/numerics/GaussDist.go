@@ -86,3 +86,8 @@ func LogRatioNorm(x, y *GaussDist) float64 {
 
 	return math.Log(y.Variance) + logSqrt2Pi - (math.Log(varDiff)-meanDiff2/varDiff)/2.0
 }
+
+// Computes the absolute difference between two Gaussians
+func AbsDiff(x, y *GaussDist) float64 {
+	return math.Max(math.Abs(x.PrecisionMean-y.PrecisionMean), math.Sqrt(math.Abs(x.Precision-y.Precision)))
+}

@@ -134,3 +134,23 @@ func TestLogRatioNorm(t *testing.T) {
 		t.Errorf("LogProdNorm(%v, %v) = %v, want %v", m1s2, m3s4, r, expected)
 	}
 }
+
+func TestAbsDiff(t *testing.T) {
+	// Verified with Ralf Herbrich's F# implementation
+	{
+		stdNormal := NewGaussDist(0, 1)
+		const expected = 0.0
+		if r := AbsDiff(stdNormal, stdNormal); math.Abs(r-expected) > errorTolerance {
+			t.Errorf("AbsDiff(%v, %v) = %v, want %v", stdNormal, stdNormal, r, expected)
+		}
+	}
+
+	{
+		m1s2 := NewGaussDist(1, 2)
+		m3s4 := NewGaussDist(3, 4)
+		const expected = 0.4330127018922193
+		if r := AbsDiff(m1s2, m3s4); math.Abs(r-expected) > errorTolerance {
+			t.Errorf("AbsDiff(%v, %v) = %v, want %v", m1s2, m3s4, r, expected)
+		}
+	}
+}
