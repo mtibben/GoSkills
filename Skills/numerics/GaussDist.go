@@ -2,6 +2,7 @@ package numerics
 
 import (
 	"math"
+	"fmt"
 )
 
 func GaussCumulativeTo(x float64) float64 {
@@ -32,6 +33,10 @@ func NewGaussDist(mean, stddev float64) *GaussDist {
 	}
 }
 
+func (z *GaussDist) String() string {
+	return fmt.Sprintf("{μ:%.6g σ:%.6g}", z.Mean, z.Stddev)
+}
+
 // Mul sets z to the product x*y and returns z.
 func (z *GaussDist) Mul(x, y *GaussDist) *GaussDist {
 	z.Precision = x.Precision + y.Precision
@@ -40,7 +45,7 @@ func (z *GaussDist) Mul(x, y *GaussDist) *GaussDist {
 	return z
 }
 
-// Mul sets z to the product x/y and returns z.
+// Div sets z to the product x/y and returns z.
 func (z *GaussDist) Div(x, y *GaussDist) *GaussDist {
 	z.Precision = x.Precision - y.Precision
 	z.PrecisionMean = x.PrecisionMean - y.PrecisionMean
@@ -52,4 +57,18 @@ func (z *GaussDist) fromPrecisionMean() {
 	z.Variance = 1 / z.Precision
 	z.Stddev = math.Sqrt(z.Variance)
 	z.Mean = z.PrecisionMean / z.Precision
+}
+
+// Returns the LogProductNormalization of x and y.
+func LogProdNorm(x, y *GaussDist) float64 {
+	if x.Precision == 0 || y.Precision == 0 {
+		return 0
+	}
+
+	varianceSum := x.Variance + y.Variance
+	meanDiff := x.Mean - y.Mean
+	meanDiff2 := meanDiff * meanDiff
+
+	const logSqrt2Pi = 0.91893853320467274178032973640562
+	return -logSqrt2Pi - (math.Log(varianceSum)+meanDiff2/varianceSum)/2.0
 }

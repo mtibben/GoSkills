@@ -32,10 +32,10 @@ func TestAt(t *testing.T) {
 func TestMul(t *testing.T) {
 	// Verified against the formula at http://www.tina-vision.net/tina-knoppix/tina-memo/2003-003.pdf
 	{
-		standardNormal := NewGaussDist(0, 1)
+		stdNormal := NewGaussDist(0, 1)
 		shiftedGaussian := NewGaussDist(2, 3)
 
-		product := new(GaussDist).Mul(standardNormal, shiftedGaussian)
+		product := new(GaussDist).Mul(stdNormal, shiftedGaussian)
 
 		const expectedMean = 0.2
 		if r := product.Mean; math.Abs(r-expectedMean) > errorTolerance {
@@ -70,9 +70,9 @@ func TestDiv(t *testing.T) {
 	// Since the multiplication was worked out by hand, we use the same numbers but work backwards
 	{
 		product := NewGaussDist(0.2, 3.0/Sqrt10)
-		standardNormal := NewGaussDist(0, 1)
+		stdNormal := NewGaussDist(0, 1)
 
-		quotient := new(GaussDist).Div(product, standardNormal)
+		quotient := new(GaussDist).Div(product, stdNormal)
 
 		const expectedMean = 2.0
 		if r := quotient.Mean; math.Abs(r-expectedMean) > errorTolerance {
@@ -101,6 +101,26 @@ func TestDiv(t *testing.T) {
 		expectedStddev := 7.0
 		if r := quotient.Stddev; math.Abs(r-expectedStddev) > errorTolerance {
 			t.Errorf("quotient.Stddev = %v, want %v", r, expectedStddev)
+		}
+	}
+}
+
+func TestLogProductNormalization(t *testing.T) {
+	// Verified with Ralf Herbrich's F# implementation
+	{
+		stdNormal := NewGaussDist(0, 1)
+		const expected = -1.2655121234846454
+		if r := LogProdNorm(stdNormal, stdNormal); math.Abs(r-expected) > errorTolerance {
+			t.Errorf("LogProdNorm(%v, %v) = %v, want %v", stdNormal, stdNormal, r, expected)
+		}
+	}
+
+	{
+		m1s2 := NewGaussDist(1, 2)
+		m3s4 := NewGaussDist(3, 4)
+		const expected = -2.5168046699816684
+		if r := LogProdNorm(m1s2, m3s4); math.Abs(r-expected) > errorTolerance {
+			t.Errorf("LogProdNorm(%v, %v) = %v, want %v", m1s2, m3s4, r, expected)
 		}
 	}
 }
