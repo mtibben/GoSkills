@@ -1,9 +1,11 @@
 package numerics
 
 import (
-	"math"
 	"fmt"
+	"math"
 )
+
+const logSqrt2Pi = 0.91893853320467274178032973640562
 
 func GaussCumulativeTo(x float64) float64 {
 	return math.Erf(x/math.Sqrt2)/2 + 0.5
@@ -65,10 +67,22 @@ func LogProdNorm(x, y *GaussDist) float64 {
 		return 0
 	}
 
-	varianceSum := x.Variance + y.Variance
+	varSum := x.Variance + y.Variance
 	meanDiff := x.Mean - y.Mean
 	meanDiff2 := meanDiff * meanDiff
 
-	const logSqrt2Pi = 0.91893853320467274178032973640562
-	return -logSqrt2Pi - (math.Log(varianceSum)+meanDiff2/varianceSum)/2.0
+	return -logSqrt2Pi - (math.Log(varSum)+meanDiff2/varSum)/2.0
+}
+
+// Returns the LogRatioNormalization of x and y.
+func LogRatioNorm(x, y *GaussDist) float64 {
+	if x.Precision == 0 || y.Precision == 0 {
+		return 0
+	}
+
+	varDiff := x.Variance - y.Variance
+	meanDiff := x.Mean - y.Mean
+	meanDiff2 := meanDiff * meanDiff
+
+	return math.Log(y.Variance) + logSqrt2Pi - (math.Log(varDiff)-meanDiff2/varDiff)/2.0
 }

@@ -105,7 +105,7 @@ func TestDiv(t *testing.T) {
 	}
 }
 
-func TestLogProductNormalization(t *testing.T) {
+func TestLogProdNorm(t *testing.T) {
 	// Verified with Ralf Herbrich's F# implementation
 	{
 		stdNormal := NewGaussDist(0, 1)
@@ -122,5 +122,15 @@ func TestLogProductNormalization(t *testing.T) {
 		if r := LogProdNorm(m1s2, m3s4); math.Abs(r-expected) > errorTolerance {
 			t.Errorf("LogProdNorm(%v, %v) = %v, want %v", m1s2, m3s4, r, expected)
 		}
+	}
+}
+
+func TestLogRatioNorm(t *testing.T) {
+	// Verified with Ralf Herbrich's F# implementation
+	m1s2 := NewGaussDist(1, 2)
+	m3s4 := NewGaussDist(3, 4)
+	const expected = 2.6157405972171204
+	if r := LogRatioNorm(m1s2, m3s4); math.Abs(r-expected) > errorTolerance {
+		t.Errorf("LogProdNorm(%v, %v) = %v, want %v", m1s2, m3s4, r, expected)
 	}
 }
