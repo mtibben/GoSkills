@@ -40,6 +40,14 @@ func (z *GaussDist) Mul(x, y *GaussDist) *GaussDist {
 	return z
 }
 
+// Mul sets z to the product x/y and returns z.
+func (z *GaussDist) Div(x, y *GaussDist) *GaussDist {
+	z.Precision = x.Precision - y.Precision
+	z.PrecisionMean = x.PrecisionMean - y.PrecisionMean
+	z.fromPrecisionMean()
+	return z
+}
+
 func (z *GaussDist) fromPrecisionMean() {
 	z.Variance = 1 / z.Precision
 	z.Stddev = math.Sqrt(z.Variance)
