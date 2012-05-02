@@ -11,21 +11,33 @@ const (
 	Sqrt10 = 3.1622776601683793319988935444327
 )
 
-func TestCumulativeTo(t *testing.T) {
-	// Verified with WolframAlpha
-	// (e.g. http://www.wolframalpha.com/input/?i=CDF%5BNormalDistribution%5B0%2C1%5D%2C+0.5%5D )
-	const in, out = 0.5, 0.691462
+func TestGaussAt(t *testing.T) {
+	const in, out = 0.5, 0.352065
+	if r := GaussAt(in); math.Abs(r-out) > errorTolerance {
+		t.Errorf("GaussAt(%v) = %v, want %v", in, r, out)
+	}
+}
+
+func TestGaussCumulativeTo(t *testing.T) {
+	const in, out = 0.5, 0.69146246
 	if r := GaussCumulativeTo(in); math.Abs(r-out) > errorTolerance {
 		t.Errorf("GaussCumulativeTo(%v) = %v, want %v", in, r, out)
 	}
 }
 
-func TestAt(t *testing.T) {
+func TestGaussInvCumulativeTo(t *testing.T) {
+	const μ, σ, in, out = 0, 1, 0.69146246, 0.5
+	if r := GaussInvCumulativeTo(in, μ, σ); math.Abs(r-out) > errorTolerance {
+		t.Errorf("GaussCumulativeTo(%v) = %v, want %v", in, r, out)
+	}
+}
+
+func TestInvErfc(t *testing.T) {
 	// Verified with WolframAlpha
-	// (e.g. http://www.wolframalpha.com/input/?i=PDF%5BNormalDistribution%5B0%2C1%5D%2C+0.5%5D )
-	const in, out = 0.5, 0.352065
-	if r := GaussAt(in); math.Abs(r-out) > errorTolerance {
-		t.Errorf("GaussAt(%v) = %v, want %v", in, r, out)
+	// (e.g. http://www.wolframalpha.com/input/?i=CDF%5BNormalDistribution%5B0%2C1%5D%2C+0.5%5D )
+	const in, out = 0.4794999836952529, 0.5
+	if r := InvErfc(in); math.Abs(r-out) > errorTolerance {
+		t.Errorf("InvErfc(%v) = %v, want %v", in, r, out)
 	}
 }
 

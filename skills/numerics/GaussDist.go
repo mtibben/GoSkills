@@ -7,12 +7,48 @@ import (
 
 const logSqrt2Pi = 0.91893853320467274178032973640562
 
+func GaussAt(x float64) float64 {
+	return math.Exp(-x*x/2) / (math.Sqrt2 * math.SqrtPi)
+}
+
 func GaussCumulativeTo(x float64) float64 {
 	return math.Erf(x/math.Sqrt2)/2 + 0.5
 }
 
-func GaussAt(x float64) float64 {
-	return math.Exp(-x*x/2) / (math.Sqrt2 * math.SqrtPi)
+func GaussInvCumulativeTo(x, mean, stddev float64) float64 {
+	// From numerical recipes, page 320
+	return mean - math.Sqrt(2)*stddev*InvErfc(2*x)
+}
+
+// Inverse of complementary error function. Returns x such that erfc(x) = p for argument p.
+func InvErfc(p float64) float64 {
+	// From page 265 of numerical recipes
+	if p >= 2.0 {
+		return -100
+	}
+	if p <= 0.0 {
+		return 100
+	}
+
+	var pp float64
+	if p < 1.0 {
+		pp = p
+	} else {
+		pp = 2 - p
+	}
+
+	t := math.Sqrt(-2 * math.Log(pp/2.0)) // Initial guess
+	x := -0.70711 * ((2.30753+t*0.27061)/(1.0+t*(0.99229+t*0.04481)) - t)
+
+	for j := 0; j < 2; j++ {
+		err := math.Erfc(x) - pp
+		x += err / (1.12837916709551257*math.Exp(-(x*x)) - x*err) // Halley
+	}
+
+	if p < 1.0 {
+		return x
+	}
+	return -x
 }
 
 type GaussDist struct {
