@@ -14,10 +14,10 @@ const (
 
 func AllTwoPlayerScenarios(t *testing.T, calc skills.Calc) {
 	TwoPlayerTestNotDrawn(t, calc)
-	//	TwoPlayerTestDrawn(t, calc)
-	//	OneOnOneMassiveUpsetDrawTest(t, calc)
+	TwoPlayerTestDrawn(t, calc)
+	OneOnOneMassiveUpsetDrawTest(t, calc)
 
-	//	TwoPlayerChessTestNotDrawn(t, calc)
+	TwoPlayerChessTestNotDrawn(t, calc)
 }
 
 //------------------- Actual Tests ---------------------------
@@ -51,6 +51,69 @@ func TwoPlayerTestNotDrawn(t *testing.T, calc skills.Calc) {
 	player2NewRating := newRatings[*player2]
 	AssertRating(t, 20.60416798000076, 7.171475587326186, player2NewRating)
 	AssertMatchQuality(t, 0.447, calc.CalcMatchQual(gameInfo, teams))
+}
+
+func TwoPlayerTestDrawn(t *testing.T, calc skills.Calc) {
+	player1 := skills.NewPlayer(1)
+	player2 := skills.NewPlayer(2)
+	gameInfo := skills.DefaultGameInfo
+
+	team1 := skills.NewTeam(*player1, gameInfo.DefaultRating())
+	team2 := skills.NewTeam(*player2, gameInfo.DefaultRating())
+	teams := []*skills.Team{team1, team2}
+
+	newRatings := calc.CalcNewRatings(gameInfo, teams, 1, 1)
+
+	player1NewRating := newRatings[*player1]
+	AssertRating(t, 25.0, 6.4575196623173081, player1NewRating)
+
+	player2NewRating := newRatings[*player2]
+	AssertRating(t, 25.0, 6.4575196623173081, player2NewRating)
+	AssertMatchQuality(t, 0.447, calc.CalcMatchQual(gameInfo, teams))
+}
+
+func TwoPlayerChessTestNotDrawn(t *testing.T, calc skills.Calc) {
+	// Inspired by a real bug :-)
+	player1 := skills.NewPlayer(1)
+	player2 := skills.NewPlayer(2)
+	gameInfo := &skills.GameInfo{
+		InitialMean:     1200,
+		InitialStddev:   1200 / 3,
+		Beta:            200,
+		DynamicsFactor:  1200 / 300,
+		DrawProbability: 0.03,
+	}
+
+	team1 := skills.NewTeam(*player1, skills.NewRating(1301.0007, 42.9232))
+	team2 := skills.NewTeam(*player2, skills.NewRating(1188.7560, 42.5570))
+	teams := []*skills.Team{team1, team2}
+
+	newRatings := calc.CalcNewRatings(gameInfo, teams, 1, 2)
+
+	player1NewRating := newRatings[*player1]
+	AssertRating(t, 1304.7820836053318, 42.843513887848658, player1NewRating)
+
+	player2NewRating := newRatings[*player2]
+	AssertRating(t, 1185.0383099003536, 42.485604606897752, player2NewRating)
+}
+
+func OneOnOneMassiveUpsetDrawTest(t *testing.T, calc skills.Calc) {
+	player1 := skills.NewPlayer(1)
+	player2 := skills.NewPlayer(2)
+	gameInfo := skills.DefaultGameInfo
+
+	team1 := skills.NewTeam(*player1, gameInfo.DefaultRating())
+	team2 := skills.NewTeam(*player2, skills.NewRating(50, 12.5))
+	teams := []*skills.Team{team1, team2}
+
+	newRatings := calc.CalcNewRatings(gameInfo, teams, 1, 1)
+
+	player1NewRating := newRatings[*player1]
+	AssertRating(t, 31.662, 7.137, player1NewRating)
+
+	player2NewRating := newRatings[*player2]
+	AssertRating(t, 35.010, 7.910, player2NewRating)
+	AssertMatchQuality(t, 0.110, calc.CalcMatchQual(gameInfo, teams))
 }
 
 func testLoc() string {
