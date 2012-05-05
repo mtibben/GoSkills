@@ -1,35 +1,28 @@
 package skills
 
-import (
-	"fmt"
-)
-
 type Team struct {
-	ratingMap map[Player]Rating
+	PlayerRatings
 }
 
-func NewTeam(p Player, r Rating) (t *Team) {
-	t = &Team{}
-	t.ratingMap = make(map[Player]Rating)
-	t.ratingMap[p] = r
-	return
+func NewTeam() Team {
+	return Team{make(map[Player]Rating)}
 }
 
-func (t Team) String() string {
-	return fmt.Sprintf("%v", t.ratingMap)
+func (t Team) AddPlayer(p Player, r Rating) {
+	t.PlayerRatings[p] = r
 }
 
-func (t *Team) PlayerCount() int {
-	return len(t.ratingMap)
+func (t Team) PlayerCount() int {
+	return len(t.PlayerRatings)
 }
 
-func (t *Team) Players() (ps []Player) {
-	for p := range t.ratingMap {
+func (t Team) Players() (ps []Player) {
+	for p := range t.PlayerRatings {
 		ps = append(ps, p)
 	}
 	return
 }
 
-func (t *Team) PlayerRating(p Player) Rating {
-	return t.ratingMap[p]
+func (t Team) PlayerRating(p Player) Rating {
+	return t.PlayerRatings[p]
 }

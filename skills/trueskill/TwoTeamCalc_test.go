@@ -5,5 +5,5 @@ import (
 )
 
 func TestTwoTeamCalc(t *testing.T) {
-
+	AllTwoTeamScenarios(t, &TwoTeamCalc{})
 }

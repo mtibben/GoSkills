@@ -1,7 +1,6 @@
 package trueskill
 
 import (
-	"fmt"
 	"github.com/ChrisHines/GoSkills/skills"
 	"github.com/ChrisHines/GoSkills/skills/numerics"
 	"math"
@@ -14,7 +13,7 @@ import (
 type TwoPlayerCalc struct{}
 
 // Calculates new ratings based on the prior ratings and team ranks use 1 for first place, repeat the number for a tie (e.g. 1, 2, 2).
-func (calc *TwoPlayerCalc) CalcNewRatings(gi *skills.GameInfo, teams []*skills.Team, ranks ...int) map[skills.Player]skills.Rating {
+func (calc *TwoPlayerCalc) CalcNewRatings(gi *skills.GameInfo, teams []skills.Team, ranks ...int) skills.PlayerRatings {
 	newSkills := make(map[skills.Player]skills.Rating)
 
 	// Basic argument checking
@@ -34,16 +33,16 @@ func (calc *TwoPlayerCalc) CalcNewRatings(gi *skills.GameInfo, teams []*skills.T
 
 	wasDraw := ranks[0] == ranks[1]
 
-	newSkills[winner] = CalculateNewRating(gi, winnerPrevRating, loserPrevRating, cond(wasDraw, skills.Draw, skills.Win))
-	newSkills[loser] = CalculateNewRating(gi, loserPrevRating, winnerPrevRating, cond(wasDraw, skills.Draw, skills.Lose))
+	newSkills[winner] = twoPlayerCalcNewRating(gi, winnerPrevRating, loserPrevRating, cond(wasDraw, skills.Draw, skills.Win))
+	newSkills[loser] = twoPlayerCalcNewRating(gi, loserPrevRating, winnerPrevRating, cond(wasDraw, skills.Draw, skills.Lose))
 
 	return newSkills
 }
 
-func CalculateNewRating(gi *skills.GameInfo, selfRating, oppRating skills.Rating, comparison int) skills.Rating {
+func twoPlayerCalcNewRating(gi *skills.GameInfo, selfRating, oppRating skills.Rating, comparison int) skills.Rating {
 	drawMargin := DrawMarginFromDrawProbability(gi.DrawProbability, gi.Beta)
 
-	c := math.Sqrt(sqr(selfRating.Stddev) + sqr(oppRating.Stddev) + 2*sqr(gi.Beta))
+	c := math.Sqrt(numerics.Sqr(selfRating.Stddev) + numerics.Sqr(oppRating.Stddev) + 2*numerics.Sqr(gi.Beta))
 
 	winningMean := selfRating.Mean
 	losingMean := oppRating.Mean
@@ -67,10 +66,10 @@ func CalculateNewRating(gi *skills.GameInfo, selfRating, oppRating skills.Rating
 		rankMultiplier = 1
 	}
 
-	meanMultiplier := (sqr(selfRating.Stddev) + sqr(gi.DynamicsFactor)) / c
+	meanMultiplier := (numerics.Sqr(selfRating.Stddev) + numerics.Sqr(gi.DynamicsFactor)) / c
 
-	varianceWithDynamics := sqr(selfRating.Stddev) + sqr(gi.DynamicsFactor)
-	stdDevMultiplier := varianceWithDynamics / sqr(c)
+	varianceWithDynamics := numerics.Sqr(selfRating.Stddev) + numerics.Sqr(gi.DynamicsFactor)
+	stdDevMultiplier := varianceWithDynamics / numerics.Sqr(c)
 
 	newMean := selfRating.Mean + (rankMultiplier * meanMultiplier * v)
 	newStdDev := math.Sqrt(varianceWithDynamics * (1 - w*stdDevMultiplier))
@@ -79,7 +78,7 @@ func CalculateNewRating(gi *skills.GameInfo, selfRating, oppRating skills.Rating
 }
 
 // Calculates the match quality as the likelihood of all teams drawing (0% = bad, 100% = well matched).
-func (calc *TwoPlayerCalc) CalcMatchQual(gi *skills.GameInfo, teams []*skills.Team) float64 {
+func (calc *TwoPlayerCalc) CalcMatchQual(gi *skills.GameInfo, teams []skills.Team) float64 {
 	ValidateTeamCountAndPlayersCountPerTeam(teams, twoPlayerTeamRange, twoPlayerPlayerRange)
 
 	team1 := teams[0]
@@ -91,60 +90,20 @@ func (calc *TwoPlayerCalc) CalcMatchQual(gi *skills.GameInfo, teams []*skills.Te
 	player2Rating := team2.PlayerRating(player2)
 
 	// We just use equation 4.1 found on page 8 of the TrueSkill 2006 paper:
-	betaSquared := sqr(gi.Beta)
-	player1SigmaSquared := sqr(player1Rating.Stddev)
-	player2SigmaSquared := sqr(player2Rating.Stddev)
+	betaSquared := numerics.Sqr(gi.Beta)
+	player1SigmaSquared := numerics.Sqr(player1Rating.Stddev)
+	player2SigmaSquared := numerics.Sqr(player2Rating.Stddev)
 
 	// This is the square root part of the equation:
 	sqrtPart := math.Sqrt(2 * betaSquared / (2*betaSquared + player1SigmaSquared + player2SigmaSquared))
 
 	// This is the exponent part of the equation:
-	expPart := math.Exp((-1 * sqr(player1Rating.Mean-player2Rating.Mean)) / (2 * (2*betaSquared + player1SigmaSquared + player2SigmaSquared)))
+	expPart := math.Exp((-1 * numerics.Sqr(player1Rating.Mean-player2Rating.Mean)) / (2 * (2*betaSquared + player1SigmaSquared + player2SigmaSquared)))
 
 	return sqrtPart * expPart
-}
-
-func ValidateTeamCountAndPlayersCountPerTeam(teams []*skills.Team, teamsAllowed, playersAllowed numerics.Range) {
-	if n := len(teams); !teamsAllowed.In(n) {
-		panic(fmt.Errorf("len(teams) [%v] outside of expected range [%v]", n, teamsAllowed))
-	}
-	for _, t := range teams {
-		if n := t.PlayerCount(); !playersAllowed.In(n) {
-			panic(fmt.Errorf("PlayerCount [%v] outside of expected range [%v]", n, playersAllowed))
-		}
-	}
 }
 
 var (
 	twoPlayerTeamRange   = numerics.Exactly(2)
 	twoPlayerPlayerRange = numerics.Exactly(1)
 )
-
-type rankedTeams struct {
-	teams []*skills.Team
-	ranks []int
-}
-
-func newRankedTeams(teams []*skills.Team, ranks []int) *rankedTeams {
-	if len(teams) != len(ranks) {
-		panic(fmt.Errorf("Number of teams [%v] does not match number of ranks [%v]", len(teams), len(ranks)))
-	}
-	return &rankedTeams{teams, ranks}
-}
-
-func (rt *rankedTeams) Len() int           { return len(rt.teams) }
-func (rt *rankedTeams) Less(i, j int) bool { return rt.ranks[i] < rt.ranks[j] }
-
-func (rt *rankedTeams) Swap(i, j int) {
-	rt.teams[i], rt.teams[j] = rt.teams[j], rt.teams[i]
-	rt.ranks[i], rt.ranks[j] = rt.ranks[j], rt.ranks[i]
-}
-
-func sqr(x float64) float64 { return x * x }
-
-func cond(c bool, t, f int) int {
-	if c {
-		return t
-	}
-	return f
-}
