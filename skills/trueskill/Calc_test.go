@@ -23,10 +23,10 @@ func AllTwoPlayerScenarios(t *testing.T, calc skills.Calc) {
 func AllTwoTeamScenarios(t *testing.T, calc skills.Calc) {
 	OneOnTwoSimpleTest(t, calc)
 	OneOnTwoSomewhatBalanced(t, calc)
+	OneOnThreeSimpleTest(t, calc)
 	/*
 		OneOnTwoDrawTest(t, calc)
 		OneOnThreeDrawTest(t, calc)
-		OneOnThreeSimpleTest(t, calc)
 		OneOnSevenSimpleTest(t, calc)
 	*/
 
@@ -376,39 +376,37 @@ func OneOnTwoSomewhatBalanced(t *testing.T, calc skills.Calc) {
 	AssertMatchQuality(t, 0.478, calc.CalcMatchQual(gameInfo, teams))
 }
 
+func OneOnThreeSimpleTest(t *testing.T, calc skills.Calc) {
+	gameInfo := skills.DefaultGameInfo
+
+	player1 := skills.NewPlayer(1)
+	team1 := skills.NewTeam()
+	team1.AddPlayer(*player1, gameInfo.DefaultRating())
+
+	player2 := skills.NewPlayer(2)
+	player3 := skills.NewPlayer(3)
+	player4 := skills.NewPlayer(4)
+	team2 := skills.NewTeam()
+	team2.AddPlayer(*player2, gameInfo.DefaultRating())
+	team2.AddPlayer(*player3, gameInfo.DefaultRating())
+	team2.AddPlayer(*player4, gameInfo.DefaultRating())
+
+	teams := []skills.Team{team1, team2}
+
+	newRatings := calc.CalcNewRatings(gameInfo, teams, 1, 2)
+
+	// Winners
+	AssertRating(t, 36.337, 7.527, newRatings[*player1])
+
+	// Losers
+	AssertRating(t, 13.663, 7.527, newRatings[*player2])
+	AssertRating(t, 13.663, 7.527, newRatings[*player3])
+	AssertRating(t, 13.663, 7.527, newRatings[*player4])
+
+	AssertMatchQuality(t, 0.012, calc.CalcMatchQual(gameInfo, teams))
+}
+
 /*
-   func OneOnThreeSimpleTest(t *testing.T, calc skills.Calc)
-   {
-       var player1 = new Player(1);
-
-       var gameInfo = GameInfo.DefaultGameInfo;
-
-       var team1 = new Team()
-           .AddPlayer(player1, gameInfo.DefaultRating);
-
-       var player2 = new Player(2);
-       var player3 = new Player(3);
-       var player4 = new Player(4);
-
-       var team2 = new Team()
-                   .AddPlayer(player2, gameInfo.DefaultRating)
-                   .AddPlayer(player3, gameInfo.DefaultRating)
-                   .AddPlayer(player4, gameInfo.DefaultRating);
-
-       var teams = Teams.Concat(team1, team2);
-       var newRatingsWinLose = calculator.CalculateNewRatings(gameInfo, teams, 1, 2);
-
-       // Winners
-       AssertRating(36.337, 7.527, newRatingsWinLose[player1]);
-
-       // Losers
-       AssertRating(13.663, 7.527, newRatingsWinLose[player2]);
-       AssertRating(13.663, 7.527, newRatingsWinLose[player3]);
-       AssertRating(13.663, 7.527, newRatingsWinLose[player4]);
-
-       AssertMatchQuality(0.012, calculator.CalculateMatchQuality(gameInfo, teams));
-   }
-
    func OneOnTwoDrawTest(t *testing.T, calc skills.Calc)
    {
        var player1 = new Player(1);
