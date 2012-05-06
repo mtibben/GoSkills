@@ -33,9 +33,7 @@ func AllTwoTeamScenarios(t *testing.T, calc skills.Calc) {
 	TwoOnTwoUnbalancedDrawTest(t, calc)
 	TwoOnTwoUpsetTest(t, calc)
 
-	/*
-		ThreeOnTwoTests(t, calc)
-	*/
+	ThreeOnTwoTests(t, calc)
 
 	FourOnFourSimpleTest(t, calc)
 }
@@ -503,54 +501,49 @@ func OneOnSevenSimpleTest(t *testing.T, calc skills.Calc) {
 	AssertMatchQuality(t, 0.000, calc.CalcMatchQual(gameInfo, teams))
 }
 
-/*
-   func ThreeOnTwoTests(t *testing.T, calc skills.Calc)
-   {
-       var player1 = new Player(1);
-       var player2 = new Player(2);
-       var player3 = new Player(3);
+func ThreeOnTwoTests(t *testing.T, calc skills.Calc) {
+	gameInfo := skills.DefaultGameInfo
 
-       var team1 = new Team()
-                   .AddPlayer(player1, new Rating(28, 7))
-                   .AddPlayer(player2, new Rating(27, 6))
-                   .AddPlayer(player3, new Rating(26, 5));
+	player1 := skills.NewPlayer(1)
+	player2 := skills.NewPlayer(2)
+	player3 := skills.NewPlayer(3)
+	team1 := skills.NewTeam()
+	team1.AddPlayer(*player1, skills.NewRating(28, 7))
+	team1.AddPlayer(*player2, skills.NewRating(27, 6))
+	team1.AddPlayer(*player3, skills.NewRating(26, 5))
 
+	player4 := skills.NewPlayer(4)
+	player5 := skills.NewPlayer(5)
+	team2 := skills.NewTeam()
+	team2.AddPlayer(*player4, skills.NewRating(30, 4))
+	team2.AddPlayer(*player5, skills.NewRating(31, 3))
 
-       var player4 = new Player(4);
-       var player5 = new Player(5);
+	teams := []skills.Team{team1, team2}
 
-       var team2 = new Team()
-                   .AddPlayer(player4, new Rating(30, 4))
-                   .AddPlayer(player5, new Rating(31, 3));
+	newRatings := calc.CalcNewRatings(gameInfo, teams, 1, 2)
 
-       var gameInfo = GameInfo.DefaultGameInfo;
+	// Winners
+	AssertRating(t, 28.658, 6.770, newRatings[*player1])
+	AssertRating(t, 27.484, 5.856, newRatings[*player2])
+	AssertRating(t, 26.336, 4.917, newRatings[*player3])
 
-       var teams = Teams.Concat(team1, team2);
-       var newRatingsWinLoseExpected = calculator.CalculateNewRatings(gameInfo, teams, 1, 2);
+	// Losers
+	AssertRating(t, 29.785, 3.958, newRatings[*player4])
+	AssertRating(t, 30.879, 2.983, newRatings[*player5])
 
-       // Winners
-       AssertRating(28.658, 6.770, newRatingsWinLoseExpected[player1]);
-       AssertRating(27.484, 5.856, newRatingsWinLoseExpected[player2]);
-       AssertRating(26.336, 4.917, newRatingsWinLoseExpected[player3]);
+	newRatings = calc.CalcNewRatings(gameInfo, teams, 2, 1)
 
-       // Losers
-       AssertRating(29.785, 3.958, newRatingsWinLoseExpected[player4]);
-       AssertRating(30.879, 2.983, newRatingsWinLoseExpected[player5]);
+	// Losers
+	AssertRating(t, 21.840, 6.314, newRatings[*player1])
+	AssertRating(t, 22.474, 5.575, newRatings[*player2])
+	AssertRating(t, 22.857, 4.757, newRatings[*player3])
 
-       var newRatingsWinLoseUpset = calculator.CalculateNewRatings(gameInfo, Teams.Concat(team1, team2), 2, 1);
+	// Winners
+	AssertRating(t, 32.012, 3.877, newRatings[*player4])
+	AssertRating(t, 32.132, 2.949, newRatings[*player5])
 
-       // Winners
-       AssertRating(32.012, 3.877, newRatingsWinLoseUpset[player4]);
-       AssertRating(32.132, 2.949, newRatingsWinLoseUpset[player5]);
-
-       // Losers
-       AssertRating(21.840, 6.314, newRatingsWinLoseUpset[player1]);
-       AssertRating(22.474, 5.575, newRatingsWinLoseUpset[player2]);
-       AssertRating(22.857, 4.757, newRatingsWinLoseUpset[player3]);
-
-       AssertMatchQuality(0.254, calculator.CalculateMatchQuality(gameInfo, teams));
-   }
-*/
+	AssertMatchQuality(t, 0.254, calc.CalcMatchQual(gameInfo, teams))
+}
 
 func testLoc() string {
 	_, file, line, ok := runtime.Caller(2)
