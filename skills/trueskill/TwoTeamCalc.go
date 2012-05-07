@@ -19,7 +19,7 @@ func (calc *TwoTeamCalc) CalcNewRatings(gi *skills.GameInfo, teams []skills.Team
 	ValidateTeamCountAndPlayersCountPerTeam(teams, twoTeamTeamRange, twoTeamPlayerRange)
 
 	// Make sure things are in order
-	sort.Sort(newRankedTeams(teams, ranks))
+	sort.Sort(skills.NewRankedTeams(teams, ranks))
 
 	winningTeam := teams[0]
 	losingTeam := teams[1]

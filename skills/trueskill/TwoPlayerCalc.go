@@ -20,7 +20,7 @@ func (calc *TwoPlayerCalc) CalcNewRatings(gi *skills.GameInfo, teams []skills.Te
 	ValidateTeamCountAndPlayersCountPerTeam(teams, twoPlayerTeamRange, twoPlayerPlayerRange)
 
 	// Make sure things are in order
-	sort.Sort(newRankedTeams(teams, ranks))
+	sort.Sort(skills.NewRankedTeams(teams, ranks))
 
 	// Since we verified that each team has one player, we know the player is the first one
 	winningTeam := teams[0]
