@@ -42,14 +42,14 @@ func (calc *TwoPlayerCalc) CalcNewRatings(gi *skills.GameInfo, teams []skills.Te
 func twoPlayerCalcNewRating(gi *skills.GameInfo, selfRating, oppRating skills.Rating, comparison int) skills.Rating {
 	drawMargin := DrawMarginFromDrawProbability(gi.DrawProbability, gi.Beta)
 
-	c := math.Sqrt(numerics.Sqr(selfRating.Stddev) + numerics.Sqr(oppRating.Stddev) + 2*numerics.Sqr(gi.Beta))
+	c := math.Sqrt(numerics.Sqr(selfRating.Stddev()) + numerics.Sqr(oppRating.Stddev()) + 2*numerics.Sqr(gi.Beta))
 
-	winningMean := selfRating.Mean
-	losingMean := oppRating.Mean
+	winningMean := selfRating.Mean()
+	losingMean := oppRating.Mean()
 
 	if comparison == skills.Lose {
-		winningMean = oppRating.Mean
-		losingMean = selfRating.Mean
+		winningMean = oppRating.Mean()
+		losingMean = selfRating.Mean()
 	}
 
 	meanDelta := winningMean - losingMean
@@ -66,12 +66,12 @@ func twoPlayerCalcNewRating(gi *skills.GameInfo, selfRating, oppRating skills.Ra
 		rankMultiplier = 1
 	}
 
-	meanMultiplier := (numerics.Sqr(selfRating.Stddev) + numerics.Sqr(gi.DynamicsFactor)) / c
+	meanMultiplier := (numerics.Sqr(selfRating.Stddev()) + numerics.Sqr(gi.DynamicsFactor)) / c
 
-	varianceWithDynamics := numerics.Sqr(selfRating.Stddev) + numerics.Sqr(gi.DynamicsFactor)
+	varianceWithDynamics := numerics.Sqr(selfRating.Stddev()) + numerics.Sqr(gi.DynamicsFactor)
 	stdDevMultiplier := varianceWithDynamics / numerics.Sqr(c)
 
-	newMean := selfRating.Mean + (rankMultiplier * meanMultiplier * v)
+	newMean := selfRating.Mean() + (rankMultiplier * meanMultiplier * v)
 	newStdDev := math.Sqrt(varianceWithDynamics * (1 - w*stdDevMultiplier))
 
 	return skills.NewRating(newMean, newStdDev)
@@ -91,14 +91,14 @@ func (calc *TwoPlayerCalc) CalcMatchQual(gi *skills.GameInfo, teams []skills.Tea
 
 	// We just use equation 4.1 found on page 8 of the TrueSkill 2006 paper:
 	betaSquared := numerics.Sqr(gi.Beta)
-	player1SigmaSquared := numerics.Sqr(player1Rating.Stddev)
-	player2SigmaSquared := numerics.Sqr(player2Rating.Stddev)
+	player1SigmaSquared := numerics.Sqr(player1Rating.Stddev())
+	player2SigmaSquared := numerics.Sqr(player2Rating.Stddev())
 
 	// This is the square root part of the equation:
 	sqrtPart := math.Sqrt(2 * betaSquared / (2*betaSquared + player1SigmaSquared + player2SigmaSquared))
 
 	// This is the exponent part of the equation:
-	expPart := math.Exp((-1 * numerics.Sqr(player1Rating.Mean-player2Rating.Mean)) / (2 * (2*betaSquared + player1SigmaSquared + player2SigmaSquared)))
+	expPart := math.Exp((-1 * numerics.Sqr(player1Rating.Mean()-player2Rating.Mean())) / (2 * (2*betaSquared + player1SigmaSquared + player2SigmaSquared)))
 
 	return sqrtPart * expPart
 }

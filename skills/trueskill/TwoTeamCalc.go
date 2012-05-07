@@ -72,7 +72,7 @@ func twoTeamUpdateRatings(gi *skills.GameInfo, newSkills skills.PlayerRatings, s
 		stdDevMultiplier := (prevPlayerRating.Variance() + tauSqr) / numerics.Sqr(c)
 
 		playerMeanDelta := rankMultiplier * meanMultiplier * v
-		newMean := prevPlayerRating.Mean + playerMeanDelta
+		newMean := prevPlayerRating.Mean() + playerMeanDelta
 
 		newStdDev := math.Sqrt((prevPlayerRating.Variance() + tauSqr) * (1 - w*stdDevMultiplier))
 

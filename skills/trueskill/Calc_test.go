@@ -554,10 +554,10 @@ func testLoc() string {
 }
 
 func AssertRating(t *testing.T, expectedMean, expectedStddev float64, actual skills.Rating) {
-	if r := actual.Mean; math.Abs(r-expectedMean) > errorTolerance {
+	if r := actual.Mean(); math.Abs(r-expectedMean) > errorTolerance {
 		t.Errorf("actual.Mean = %v, want %v\n%v", r, expectedMean, testLoc())
 	}
-	if r := actual.Stddev; math.Abs(r-expectedStddev) > errorTolerance {
+	if r := actual.Stddev(); math.Abs(r-expectedStddev) > errorTolerance {
 		t.Errorf("actual.Stddev = %v, want %v\n%v", r, expectedStddev, testLoc())
 	}
 }
