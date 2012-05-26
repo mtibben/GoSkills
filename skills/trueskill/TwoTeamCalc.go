@@ -18,13 +18,16 @@ func (calc *TwoTeamCalc) CalcNewRatings(gi *skills.GameInfo, teams []skills.Team
 	// Basic argument checking
 	ValidateTeamCountAndPlayersCountPerTeam(teams, twoTeamTeamRange, twoTeamPlayerRange)
 
+	// Copy ranks slice so we don't confuse the client code
+	sranks := append([]int{}, ranks...)
+
 	// Make sure things are in order
-	sort.Sort(skills.NewRankedTeams(teams, ranks))
+	sort.Sort(skills.NewRankedTeams(teams, sranks))
 
 	winningTeam := teams[0]
 	losingTeam := teams[1]
 
-	wasDraw := ranks[0] == ranks[1]
+	wasDraw := sranks[0] == sranks[1]
 
 	twoTeamUpdateRatings(gi, newSkills, winningTeam, losingTeam, cond(wasDraw, skills.Draw, skills.Win))
 	twoTeamUpdateRatings(gi, newSkills, losingTeam, winningTeam, cond(wasDraw, skills.Draw, skills.Lose))

@@ -63,9 +63,13 @@ func TwoPlayerTestNotDrawn(t *testing.T, calc skills.Calc) {
 	team2 := skills.NewTeam()
 	team2.AddPlayer(*player2, gameInfo.DefaultRating())
 
-	teams := []skills.Team{team1, team2}
+	teams := []skills.Team{team2, team1}
 
-	newRatings := calc.CalcNewRatings(gameInfo, teams, 1, 2)
+	ranks := []int{2, 1}
+	newRatings := calc.CalcNewRatings(gameInfo, teams, ranks...)
+	if ranks[0] != 2 {
+		t.Errorf("client ranks slice reordered")
+	}
 
 	player1NewRating := newRatings[*player1]
 	AssertRating(t, 29.39583201999924, 7.171475587326186, player1NewRating)
@@ -169,9 +173,13 @@ func TwoOnTwoSimpleTest(t *testing.T, calc skills.Calc) {
 	team2.AddPlayer(*player3, gameInfo.DefaultRating())
 	team2.AddPlayer(*player4, gameInfo.DefaultRating())
 
-	teams := []skills.Team{team1, team2}
+	teams := []skills.Team{team2, team1}
 
-	newRatings := calc.CalcNewRatings(gameInfo, teams, 1, 2)
+	ranks := []int{2, 1}
+	newRatings := calc.CalcNewRatings(gameInfo, teams, ranks...)
+	if ranks[0] != 2 {
+		t.Errorf("client ranks slice reordered")
+	}
 
 	// Winners
 	AssertRating(t, 28.108, 7.774, newRatings[*player1])
