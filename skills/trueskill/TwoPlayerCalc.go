@@ -17,7 +17,8 @@ func (calc *TwoPlayerCalc) CalcNewRatings(gi *skills.GameInfo, teams []skills.Te
 	newSkills := make(map[skills.Player]skills.Rating)
 
 	// Basic argument checking
-	ValidateTeamCountAndPlayersCountPerTeam(teams, twoPlayerTeamRange, twoPlayerPlayerRange)
+	ValidateTeamCount(teams, twoPlayerTeamRange)
+	ValidatePlayersPerTeam(teams, twoPlayerPlayerRange)
 
 	// Copy ranks slice so we don't confuse the client code
 	sranks := append([]int{}, ranks...)
@@ -82,7 +83,8 @@ func twoPlayerCalcNewRating(gi *skills.GameInfo, selfRating, oppRating skills.Ra
 
 // Calculates the match quality as the likelihood of all teams drawing (0% = bad, 100% = well matched).
 func (calc *TwoPlayerCalc) CalcMatchQual(gi *skills.GameInfo, teams []skills.Team) float64 {
-	ValidateTeamCountAndPlayersCountPerTeam(teams, twoPlayerTeamRange, twoPlayerPlayerRange)
+	ValidateTeamCount(teams, twoPlayerTeamRange)
+	ValidatePlayersPerTeam(teams, twoPlayerPlayerRange)
 
 	team1 := teams[0]
 	player1 := team1.Players()[0]
