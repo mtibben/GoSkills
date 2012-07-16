@@ -23,6 +23,7 @@ func NewRange(min, max int) Range {
 func AtLeast(x int) Range {
 	return NewRange(x, math.MaxInt32)
 }
+
 // Construct a range covering a single integer
 func Exactly(x int) Range {
 	return NewRange(x, x)
