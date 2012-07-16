@@ -64,9 +64,13 @@ func TwoPlayerTestNotDrawn(t *testing.T, calc skills.Calc) {
 	team2.AddPlayer(*player2, gameInfo.DefaultRating())
 
 	teams := []skills.Team{team2, team1}
-
 	ranks := []int{2, 1}
+
 	newRatings := calc.CalcNewRatings(gameInfo, teams, ranks...)
+
+	if teams[0].Players()[0] != *player2 {
+		t.Errorf("client teams slice reordered")
+	}
 	if ranks[0] != 2 {
 		t.Errorf("client ranks slice reordered")
 	}

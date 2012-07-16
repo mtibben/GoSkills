@@ -20,18 +20,19 @@ func (calc *TwoPlayerCalc) CalcNewRatings(gi *skills.GameInfo, teams []skills.Te
 	ValidateTeamCount(teams, twoPlayerTeamRange)
 	ValidatePlayersPerTeam(teams, twoPlayerPlayerRange)
 
-	// Copy ranks slice so we don't confuse the client code
+	// Copy the slices so we don't confuse the client code
+	steams := append([]skills.Team{}, teams...)
 	sranks := append([]int{}, ranks...)
 
 	// Make sure things are in order
-	sort.Sort(skills.NewRankedTeams(teams, sranks))
+	sort.Sort(skills.NewRankedTeams(steams, sranks))
 
 	// Since we verified that each team has one player, we know the player is the first one
-	winningTeam := teams[0]
+	winningTeam := steams[0]
 	winner := winningTeam.Players()[0]
 	winnerPrevRating := winningTeam.PlayerRating(winner)
 
-	losingTeam := teams[1]
+	losingTeam := steams[1]
 	loser := losingTeam.Players()[0]
 	loserPrevRating := losingTeam.PlayerRating(loser)
 

@@ -5,6 +5,6 @@ import (
 )
 
 func TestTwoTeamCalc(t *testing.T) {
-	AllTwoPlayerScenarios(t, &TwoPlayerCalc{})
+	AllTwoPlayerScenarios(t, &TwoTeamCalc{})
 	AllTwoTeamScenarios(t, &TwoTeamCalc{})
 }
