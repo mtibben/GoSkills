@@ -136,6 +136,17 @@ func TestDiv(t *testing.T) {
 	}
 }
 
+func TestCumulativeTo(t *testing.T) {
+	{
+		stdNormal := NewGaussDist(0, 1)
+
+		const expected = 0.15865525
+		if r := stdNormal.CumulativeTo(-1); math.Abs(r-expected) > errorTolerance {
+			t.Errorf("stdNormal.CumulativeTo(-1) = %v, want %v", r, expected)
+		}
+	}
+}
+
 func TestLogProdNorm(t *testing.T) {
 	// Verified with Ralf Herbrich's F# implementation
 	{

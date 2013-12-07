@@ -101,6 +101,11 @@ func (z *GaussDist) Div(x, y *GaussDist) *GaussDist {
 	return z
 }
 
+// CumulativeTo returns the cumulative distrubution function evaluated at x.
+func (z *GaussDist) CumulativeTo(x float64) float64 {
+	return GaussCumulativeTo((x - z.Mean) / z.Stddev)
+}
+
 func (z *GaussDist) fromPrecisionMean() {
 	z.Variance = 1 / z.Precision
 	z.Stddev = math.Sqrt(z.Variance)
