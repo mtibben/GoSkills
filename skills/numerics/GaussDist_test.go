@@ -41,6 +41,25 @@ func TestInvErfc(t *testing.T) {
 	}
 }
 
+func TestSub(t *testing.T) {
+	{
+		stdNormal := NewGaussDist(0, 1)
+		shiftedGaussian := NewGaussDist(2, 3)
+
+		diff := new(GaussDist).Sub(stdNormal, shiftedGaussian)
+
+		const expectedMean = -2.0
+		if r := diff.Mean; math.Abs(r-expectedMean) > errorTolerance {
+			t.Errorf("diff.Mean = %v, want %v", r, expectedMean)
+		}
+
+		var expectedStddev = math.Sqrt(10.0)
+		if r := diff.Stddev; math.Abs(r-expectedStddev) > errorTolerance {
+			t.Errorf("diff.Stddev = %v, want %v", r, expectedStddev)
+		}
+	}
+}
+
 func TestMul(t *testing.T) {
 	// Verified against the formula at http://www.tina-vision.net/tina-knoppix/tina-memo/2003-003.pdf
 	{

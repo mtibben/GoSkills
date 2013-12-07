@@ -75,6 +75,16 @@ func (z *GaussDist) String() string {
 	return fmt.Sprintf("{μ:%.6g σ:%.6g}", z.Mean, z.Stddev)
 }
 
+// Sub sets z to the difference x-y and returns z.
+func (z *GaussDist) Sub(x, y *GaussDist) *GaussDist {
+	z.Mean = x.Mean - y.Mean
+	z.Variance = x.Variance + y.Variance
+	z.Stddev = math.Sqrt(z.Variance)
+	z.Precision = 1 / z.Variance
+	z.PrecisionMean = z.Mean * z.Precision
+	return z
+}
+
 // Mul sets z to the product x*y and returns z.
 func (z *GaussDist) Mul(x, y *GaussDist) *GaussDist {
 	z.Precision = x.Precision + y.Precision
