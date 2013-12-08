@@ -5,7 +5,7 @@ type Team struct {
 }
 
 func NewTeam() Team {
-	return Team{make(map[Player]Rating)}
+	return Team{make(PlayerRatings)}
 }
 
 func (t Team) AddPlayer(p Player, r Rating) {
@@ -16,11 +16,12 @@ func (t Team) PlayerCount() int {
 	return len(t.PlayerRatings)
 }
 
-func (t Team) Players() (ps []Player) {
+func (t Team) Players() []Player {
+	ps := []Player{}
 	for p := range t.PlayerRatings {
 		ps = append(ps, p)
 	}
-	return
+	return ps
 }
 
 func (t Team) PlayerRating(p Player) Rating {
