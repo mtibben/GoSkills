@@ -112,7 +112,7 @@ func (z *GaussDist) fromPrecisionMean() {
 	z.Mean = z.PrecisionMean / z.Precision
 }
 
-// Returns the LogProductNormalization of x and y.
+// Returns the log product normalization of x and y.
 func LogProdNorm(x, y *GaussDist) float64 {
 	if x.Precision == 0 || y.Precision == 0 {
 		return 0
@@ -125,17 +125,17 @@ func LogProdNorm(x, y *GaussDist) float64 {
 	return -logSqrt2Pi - (math.Log(varSum)+meanDiff2/varSum)/2.0
 }
 
-// Returns the LogRatioNormalization of x and y.
+// Returns the log ratio normalization of x and y.
 func LogRatioNorm(x, y *GaussDist) float64 {
 	if x.Precision == 0 || y.Precision == 0 {
 		return 0
 	}
 
-	varDiff := x.Variance - y.Variance
+	varDiff := y.Variance - x.Variance
 	meanDiff := x.Mean - y.Mean
 	meanDiff2 := meanDiff * meanDiff
 
-	return math.Log(y.Variance) + logSqrt2Pi - (math.Log(varDiff)-meanDiff2/varDiff)/2.0
+	return math.Log(y.Variance) + logSqrt2Pi - math.Log(varDiff)/2 + meanDiff2/(2*varDiff)
 }
 
 // Computes the absolute difference between two Gaussians
