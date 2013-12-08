@@ -4,8 +4,7 @@ import (
 	"fmt"
 )
 
-type Identifier interface {
-}
+type Identifier interface{}
 
 type Player struct {
 	id Identifier
