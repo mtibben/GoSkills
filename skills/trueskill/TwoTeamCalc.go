@@ -16,10 +16,10 @@ func (calc *TwoTeamCalc) CalcNewRatings(gi *skills.GameInfo, teams []skills.Team
 	newSkills := make(map[skills.Player]skills.Rating)
 
 	// Basic argument checking
-	ValidateTeamCount(teams, twoTeamTeamRange)
-	ValidatePlayersPerTeam(teams, twoTeamPlayerRange)
+	validateTeamCount(teams, twoTeamTeamRange)
+	validatePlayersPerTeam(teams, twoTeamPlayerRange)
 
-	// Copy ranks slice so we don't confuse the client code
+	// Copy slices so we don't confuse the client code
 	steams := append([]skills.Team{}, teams...)
 	sranks := append([]int{}, ranks...)
 
@@ -38,7 +38,7 @@ func (calc *TwoTeamCalc) CalcNewRatings(gi *skills.GameInfo, teams []skills.Team
 }
 
 func twoTeamUpdateRatings(gi *skills.GameInfo, newSkills skills.PlayerRatings, selfTeam, otherTeam skills.Team, comparison int) {
-	drawMargin := DrawMarginFromDrawProbability(gi.DrawProbability, gi.Beta)
+	drawMargin := drawMarginFromDrawProbability(gi.DrawProbability, gi.Beta)
 	betaSqr := numerics.Sqr(gi.Beta)
 	tauSqr := numerics.Sqr(gi.DynamicsFactor)
 
@@ -61,12 +61,12 @@ func twoTeamUpdateRatings(gi *skills.GameInfo, newSkills skills.PlayerRatings, s
 	var v, w, rankMultiplier float64
 
 	if comparison != skills.Draw {
-		v = VExceedsMarginC(meanDelta, drawMargin, c)
-		w = WExceedsMarginC(meanDelta, drawMargin, c)
+		v = vExceedsMarginC(meanDelta, drawMargin, c)
+		w = wExceedsMarginC(meanDelta, drawMargin, c)
 		rankMultiplier = float64(comparison)
 	} else {
-		v = VWithinMarginC(meanDelta, drawMargin, c)
-		w = WWithinMarginC(meanDelta, drawMargin, c)
+		v = vWithinMarginC(meanDelta, drawMargin, c)
+		w = wWithinMarginC(meanDelta, drawMargin, c)
 		rankMultiplier = 1
 	}
 
@@ -88,8 +88,8 @@ func twoTeamUpdateRatings(gi *skills.GameInfo, newSkills skills.PlayerRatings, s
 // Calculates the match quality as the likelihood of all teams drawing (0% = bad, 100% = well matched).
 func (calc *TwoTeamCalc) CalcMatchQual(gi *skills.GameInfo, teams []skills.Team) float64 {
 	// Basic argument checking
-	ValidateTeamCount(teams, twoTeamTeamRange)
-	ValidatePlayersPerTeam(teams, twoTeamPlayerRange)
+	validateTeamCount(teams, twoTeamTeamRange)
+	validatePlayersPerTeam(teams, twoTeamPlayerRange)
 
 	// We've verified that there's just two teams
 	team1 := teams[0]

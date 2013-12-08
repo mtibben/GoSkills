@@ -1,8 +1,8 @@
 package trueskill
 
 import (
-	"testing"
 	"math"
+	"testing"
 )
 
 func TestDrawMarginFromDrawProbability(t *testing.T) {
@@ -16,7 +16,7 @@ func TestDrawMarginFromDrawProbability(t *testing.T) {
 
 func AssertDrawMargin(t *testing.T, drawProb, beta, expected float64) {
 	const errorTolerance = 0.000001
-	actual := DrawMarginFromDrawProbability(drawProb, beta)
+	actual := drawMarginFromDrawProbability(drawProb, beta)
 	if r := actual; math.Abs(r-expected) > errorTolerance {
 		t.Errorf("draw margin = %v, want %v\n%v", r, expected, testLoc())
 	}
