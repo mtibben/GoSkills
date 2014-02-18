@@ -8,6 +8,12 @@ func NewTeam() Team {
 	return Team{make(PlayerRatings)}
 }
 
+func NewTeamWithPlayer(p Player, r Rating) Team {
+	t := NewTeam()
+	t.AddPlayer(p, r)
+	return t
+}
+
 func (t Team) AddPlayer(p Player, r Rating) {
 	t.PlayerRatings[p] = r
 }
